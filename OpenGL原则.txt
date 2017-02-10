@@ -1,0 +1,69 @@
+1，使用GLTool与freeglut的配置
+***********************************
+项目属性-链接器-输入-附加依赖项加入（必须严格按顺序）
+opengl32.lib
+gltools.lib
+freeglut.lib
+**********************************
+引入头文件顺序：（注意依然需要引入glew.h,只不过不用glew32s.lib而已）
+#include <gl/glew.h>
+#include <GLTools.h>
+#include <GLShaderManager.h>
+...(GLTools其他头文件)
+#include <GL\freeglut.h>
+**********************************
+项目debug文件夹加入:freeglut.dll
+
+
+2，使用glew+glfw+soil+assimp：
+**********************************************
+项目属性-链接器-输入-附加依赖项加入（必须严格按顺序）
+opengl32.lib
+glew32s.lib
+glfw3dll.lib
+SOIL.lib
+assimp.lib
+**********************************************
+引入头文件顺序:
+#pragma once（头文件仅仅引入一次的命令）
+// Std. Includes and Windows includes
+#include <string>
+#include <fstream>
+#include <sstream>
+#include <iostream>
+#include <vector>
+（#include<windows.h>可能会用到）
+using namespace std;
+...(注意这里也可以引入与Windows有关的头文件比如windows.h,目的是可以使用Windows的API,但是一定
+要在引入glfw3.h以前引入Windows的头文件,必须在glfw3.h之前提前检测到Windows的头文件才可以)
+
+// GLEW
+#define GLEW_STATIC（使用静态编译,所以导入glew32s.lib，不需要dll）
+#include <GL/glew.h>(引入glew.h必须在glfw3.h之前,glew.h会从本地动态加载与openGL有关的所有函数)
+
+// GLFW
+#include <GL/glfw3.h>（导入的glfw3.h仅仅用来处理窗口创建与窗口事件,所以这个头文件就是一个窗口处理头文件）
+
+// GL includes（导入自己写的openGL相关类:着色器类/摄像机类/模型加载类，这些类的特点是基本
+不需要做改动，可以通用于各个项目。但是注意：模型类Model.h需要提前写一个Mesh.h，着色器类通用但是
+顶点着色器文件与片段着色器文件并不能通用，每个项目都可能使用不同的顶点着色器与片段着色器。）
+#include "Shader.h"
+#include "Camera.h"
+#include "Model.h"
+（#include"Mesh.h"在写Model.h需要用到）
+
+// GLM Mathemtics（导入glm数学库）
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
+//Assimp（模型加载库）
+#include <assimp/Importer.hpp>      // 导入器在该头文件中定义
+#include <assimp/scene.h>           // 读取到的模型数据都放在scene中
+#include <assimp/postprocess.h>     // 该头文件中包含后处理的标志位定义
+
+// Other Libs
+#include <SOIL/SOIL.h>（导入图片库）
+
+***********************************************
+项目debug文件夹加入：glfw3.dll与assimpd.dll
